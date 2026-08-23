@@ -1,6 +1,6 @@
 <!--
   ****************************************************************************
-  * Copyright 2018-2024,2025 Thomas E. Dickey                                *
+  * Copyright 2018-2025,2026 Thomas E. Dickey                                *
   * Copyright 1998-2017,2018 Free Software Foundation, Inc.                  *
   *                                                                          *
   * Permission is hereby granted, free of charge, to any person obtaining a  *
@@ -27,19 +27,19 @@
   * sale, use or other dealings in this Software without prior written       *
   * authorization.                                                           *
   ****************************************************************************
-  * @Id: curs_termcap.3x,v 1.107 2025/08/16 19:09:12 tom Exp @
+  * @Id: curs_termcap.3x,v 1.110 2026/08/22 21:43:25 tom Exp @
 -->
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
 <HTML>
 <HEAD>
 <meta http-equiv="Content-Type" content="text/html; charset=us-ascii">
 <meta name="generator" content="Manpage converted by man2html - see https://invisible-island.net/scripts/readme.html#others_scripts">
-<TITLE>curs_termcap 3x 2025-08-16 ncurses 6.6 Library calls</TITLE>
+<TITLE>curs_termcap 3x 2026-08-22 ncurses 6.6 Library calls</TITLE>
 <link rel="author" href="mailto:bug-ncurses@gnu.org">
 
 </HEAD>
 <BODY>
-<H1 class="no-header">curs_termcap 3x 2025-08-16 ncurses 6.6 Library calls</H1>
+<H1 class="no-header">curs_termcap 3x 2026-08-22 ncurses 6.6 Library calls</H1>
 <PRE>
 <STRONG><A HREF="curs_termcap.3x.html">curs_termcap(3x)</A></STRONG>                 Library calls                <STRONG><A HREF="curs_termcap.3x.html">curs_termcap(3x)</A></STRONG>
 
@@ -218,6 +218,83 @@
        <STRONG>tgetflag</STRONG>, <STRONG>tgetnum</STRONG>, and <STRONG>tgetstr</STRONG> to the capability names in the database.
 
 
+</PRE><H3><a name="h3-Pitfalls-of-Long-Terminal-Type-Descriptions">Pitfalls of Long Terminal Type Descriptions</a></H3><PRE>
+       Because terminal descriptions in <EM>termcap</EM> are  limited  to  1023  bytes,
+       specifying  many  function  key  definitions  or  translating  <EM>terminfo</EM>
+       entries to <EM>termcap</EM> can cause problems.
+
+       The man pages for 4.3BSD and older versions  of  <STRONG>tgetent</STRONG>  instruct  the
+       user  to  allocate a 1024-byte buffer for the <EM>termcap</EM> entry.  The entry
+       gets null-terminated by the <EM>termcap</EM> library, so that makes the  maximum
+       safe  length for a <EM>termcap</EM> entry 1KB-1 (1023) bytes.  Depending on what
+       the application and the <EM>termcap</EM> library being used does, and  where  in
+       the  <EM>termcap</EM>  file  the terminal type that <STRONG>tgetent</STRONG> is searching for is,
+       several bad things can happen:
+
+       <STRONG>o</STRONG>   some <EM>termcap</EM> libraries print a warning message,
+
+       <STRONG>o</STRONG>   some exit if they find an entry that's longer than 1023 bytes,
+
+       <STRONG>o</STRONG>   some neither exit nor warn, doing nothing useful, and
+
+       <STRONG>o</STRONG>   some simply truncate the entries to 1023 bytes.
+
+       Some application programs allocate more than the recommended 1K for the
+       <EM>termcap</EM> entry; others do not.
+
+       Each <EM>termcap</EM> entry has two important sizes associated with  it:  before
+       "tc"  expansion, and after "tc" expansion.  "tc" is the capability that
+       tacks on another <EM>termcap</EM> entry to the end of the current one, to add on
+       its capabilities.  If a <EM>termcap</EM> entry does not use the "tc" capability,
+       then of course the two lengths are the same.
+
+       The "before tc expansion" length is the more important one, because  it
+       affects  more than just users of that particular terminal.  This is the
+       length of the entry as it exists in <EM>/etc/termcap</EM>, minus the  backslash-
+       newline pairs, which <STRONG>tgetent</STRONG> strips out while reading it.  Some <EM>termcap</EM>
+       libraries  strip  off  the  final newline, too (though GNU <EM>termcap</EM> does
+       not).  Now suppose:
+
+       <STRONG>o</STRONG>   a <EM>termcap</EM> entry before expansion is more than 1023 bytes long,
+
+       <STRONG>o</STRONG>   and the application has allocated only a 1KB buffer,
+
+       <STRONG>o</STRONG>   and the <EM>termcap</EM> library (like the one in BSD/OS 1.1 and GNU)  reads
+           the  whole entry into the buffer, no matter what its length, to see
+           if it is the entry it wants,
+
+       <STRONG>o</STRONG>   and <STRONG>tgetent</STRONG> is searching for a terminal type  that  either  is  the
+           long  entry,  appears  in the <EM>termcap</EM> file after the long entry, or
+           does not appear in the file at all (so that <STRONG>tgetent</STRONG> has  to  search
+           the whole <EM>termcap</EM> file).
+
+       Then  <STRONG>tgetent</STRONG>  will  overwrite  memory, perhaps its stack, and probably
+       core dump  the  program.   Programs  like  <STRONG>telnet(1)</STRONG>  are  particularly
+       vulnerable;  modern  <EM>telnet</EM>s  pass  along values like the terminal type
+       automatically.  The results are almost as undesirable  with  a  <EM>termcap</EM>
+       library,  like those of SunOS 4.1.3 and Ultrix 4.4, that prints warning
+       messages when it reads an overly long  <EM>termcap</EM>  entry.   If  a  <EM>termcap</EM>
+       library  truncates  long entries, like OSF/1 3.0, it is immune to dying
+       here but will return incorrect data for the terminal.
+
+       The "after tc expansion" length will  have  a  similar  effect  to  the
+       above, but only for people who actually set <EM>TERM</EM> to that terminal type,
+       since  <STRONG>tgetent</STRONG>  only does "tc" expansion once it has found the terminal
+       type it was looking for, not while searching.
+
+       In summary, a <EM>termcap</EM> entry that is longer than 1023 bytes  can  cause,
+       with various combinations of <EM>termcap</EM> libraries and applications, a core
+       dump,  warnings, or incorrect operation.  If it is too long even before
+       "tc" expansion, it will have this effect even for users of  some  other
+       terminal  types  and  users whose <EM>TERM</EM> variable does not have a <EM>termcap</EM>
+       entry.
+
+       When in -C (translate to <EM>termcap</EM>) mode, the <EM>ncurses</EM>  implementation  of
+       <STRONG><A HREF="tic.1m.html">tic(1m)</A></STRONG>  issues  warning  messages  when the pre-tc length of a <EM>termcap</EM>
+       translation is too long.  The -c (check) option also validates resolved
+       (after tc expansion) lengths.
+
+
 </PRE><H2><a name="h2-PORTABILITY">PORTABILITY</a></H2><PRE>
        These functions are no longer standardized  (and  the  variables  never
        were);  see  section "HISTORY" below.  <EM>ncurses</EM> provides them to support
@@ -367,7 +444,7 @@
 
        <STRONG><A HREF="ncurses.3x.html">curses(3x)</A></STRONG>, <STRONG><A HREF="curs_terminfo.3x.html">curs_terminfo(3x)</A></STRONG>, <STRONG>putc(3)</STRONG>, <STRONG><A HREF="term_variables.3x.html">term_variables(3x)</A></STRONG>, <STRONG><A HREF="terminfo.5.html">terminfo(5)</A></STRONG>
 
-ncurses 6.6                       2025-08-16                  <STRONG><A HREF="curs_termcap.3x.html">curs_termcap(3x)</A></STRONG>
+ncurses 6.6                       2026-08-22                  <STRONG><A HREF="curs_termcap.3x.html">curs_termcap(3x)</A></STRONG>
 </PRE>
 <div class="nav">
 <ul>
@@ -383,7 +460,11 @@ ncurses 6.6                       2025-08-16                  <STRONG><A HREF="c
 </ul>
 </li>
 <li><a href="#h2-RETURN-VALUE">RETURN VALUE</a></li>
-<li><a href="#h2-NOTES">NOTES</a></li>
+<li><a href="#h2-NOTES">NOTES</a>
+<ul>
+<li><a href="#h3-Pitfalls-of-Long-Terminal-Type-Descriptions">Pitfalls of Long Terminal Type Descriptions</a></li>
+</ul>
+</li>
 <li><a href="#h2-PORTABILITY">PORTABILITY</a>
 <ul>
 <li><a href="#h3-Compatibility-with-BSD-termcap">Compatibility with BSD termcap</a></li>

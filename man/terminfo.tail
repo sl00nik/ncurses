@@ -1,5 +1,5 @@
 .\"***************************************************************************
-.\" Copyright 2018-2024,2025 Thomas E. Dickey                                *
+.\" Copyright 2018-2025,2026 Thomas E. Dickey                                *
 .\" Copyright 1998-2016,2017 Free Software Foundation, Inc.                  *
 .\"                                                                          *
 .\" Permission is hereby granted, free of charge, to any person obtaining a  *
@@ -27,7 +27,7 @@
 .\" authorization.                                                           *
 .\"***************************************************************************
 .\"
-.\" $Id: terminfo.tail,v 1.163 2025/11/12 01:01:34 Branden.Robinson Exp $
+.\" $Id: terminfo.tail,v 1.166 2026/08/22 20:21:30 Branden.Robinson Exp $
 .ps +1
 .SS "User-Defined Capabilities"
 .
@@ -1707,17 +1707,17 @@ character pairs right to left in sequence; these become the ACSC string.
 The
 .I curses
 library functions
-.B \%init_pair
+.I \%init_pair
 and
-.B \%init_color
+.I \%init_color
 manipulate the
 .I "color pairs"
 and
 .I colors
 (color values or indices,
 such as \*(``1=red\*('')
-discussed in this section
-(see \fB\%curs_color\fP(3X) for details on these and related functions).
+discussed in this subsection.
+See \fB\%curs_color\fP(3X) for details on these and related functions.
 .PP
 Most color terminals are either \*(``Tektronix-like\*(''
 or \*(``HP-like\*(''
@@ -1735,7 +1735,8 @@ character-cell foreground and background colors independently,
 mixing them into
 .IR n \(mu n
 color pairs.
-ANSI-standard terminals are Tektronix-like.
+Terminals conforming to ANSI\ X3.64/ECMA-48/ISO\ 6429
+are Tektronix-like.
 .bP
 On
 .I HP-like
@@ -1752,26 +1753,19 @@ Some basic color management capabilities
 are independent of the color encoding method.
 The numeric capabilities
 .B \%max_colors
-.RB ( \%colors )
+.RB \%( colors )
 and
 .B \%max_pairs
-.RB ( \%pairs )
+.RB \%( pairs )
 specify the maximum numbers of colors
 and color pairs that the device can display simultaneously.
 The
 .B \%orig_pair
-.RB ( \%op )
+.RB \%( op )
 (\*(``original pair\*('')
 string capability
-resets foreground and background colors
-to their default values for the terminal.
-The
-.B \%orig_colors
-.RB ( \%oc )
-(\*(``original colors\*('')
-string capability
-resets all colors or color pairs
-to their default values for the terminal.
+selects the terminal's power-up color pair selection,
+resetting the foreground and background colors to their defaults.
 Some terminal types
 (including many PC terminal emulators)
 erase screen areas with the current background color rather
@@ -1780,36 +1774,62 @@ these should declare the Boolean capability
 .B \%back_color_erase
 .RB ( bce ).
 .PP
-While the
+While
 .I curses
-library works with \fIcolor pairs\fP
-(reflecting the inability of some devices to set foreground
-and background colors independently),
-there are separate capabilities for setting these features:
+works with color pairs,
+.I \%terminfo
+exposes distinct capabilities
+configuring foreground and background colors.
+Early color terminals supported only a limited set of colors,
+and diverged in how they encoded the RGB color channels.
 .bP
-To change the current foreground or background color on a Tektronix-type
-terminal, use \fBsetaf\fP (set ANSI foreground) and \fBsetab\fP (set ANSI
-background) or \fBsetf\fP (set foreground) and \fBsetb\fP (set background).
-These take one parameter, the color number.
-The SVr4 documentation describes
-only \fBsetaf\fP/\fBsetab\fP; the XPG4 draft says that "If the terminal
-supports ANSI escape sequences to set background and foreground, they should
-be coded as \fBsetaf\fP and \fBsetab\fP, respectively.
+To change the current foreground or background color
+on a Tektronix-type terminal,
+use
+.B \%set_a_foreground
+.RB \%( setaf )
+and
+.B \%set_a_background
+.RB \%( setab ).
+The X/Open Curses standard says
+.\" Issue 4, Version 2: p. 265 (PDF p. 285)
+.\" Issue 7: p. 363
+\*(``If the terminal supports ANSI escape sequences
+to set background and foreground,
+they should be coded as
+.B \%setab
+and
+.BR \%setaf ","
+respectively.\*(''
 .bP
 If the terminal
-supports other escape sequences to set background and foreground, they should
-be coded as \fBsetf\fP and \fBsetb\fP, respectively.
-The \fBvidputs\fP and the \fBrefresh\fP(3X) functions
-use the \fBsetaf\fP and \fBsetab\fP capabilities if they are defined.
+supports other escape sequences to set background and foreground,
+encode them using
+.B \%set_background
+.RB \%( setb )
+and
+.B \%set_foreground
+.RB \%( setf ),
+respectively.
+The \fB\%vidputs\fP(3X) and \fB\%refresh\fP(3X) functions
+prefer the
+.B \%setaf
+and
+.B \%setab
+capabilities if they are defined.
 .PP
-The \fBsetaf\fP/\fBsetab\fP and \fBsetf\fP/\fBsetb\fP capabilities take a
-single numeric argument each.
-Argument values 0-7 of \fBsetaf\fP/\fBsetab\fP are portably defined as
-follows (the middle column is the symbolic #define available in the header for
-the \fBcurses\fP or \fI\%ncurses\fP libraries).
-The terminal hardware is free to
-map these as it likes, but the RGB values indicate normal locations in color
-space.
+All of the foregoing capabilities capabilities
+take a single numeric argument each.
+Argument values 0-7 of
+.B \%setaf
+and
+.B \%setab
+are portably defined as follows.
+(The middle column is the symbolic
+\*(``#define\*(`` available in
+.IR curses.h .)
+The terminal is free to map these as it likes,
+but the RGB values indicate their usual color channel assignments.
 .PP
 .TS
 center;
@@ -1829,8 +1849,12 @@ white	COLOR_WHITE	7	max,	max,	max
 .br
 .if t .ne 6v
 .PP
-The argument values of \fBsetf\fP/\fBsetb\fP historically correspond to
-a different mapping, i.e.,
+The argument values of
+.B setf
+and
+.B setb
+historically correspond to a different mapping,
+as follows.
 .PP
 .TS
 center;
@@ -1848,41 +1872,82 @@ yellow	COLOR_YELLOW	6	max,	max,	0
 white	COLOR_WHITE	7	max,	max,	max
 .TE
 .PP
-It is important to not confuse the two sets of color capabilities;
+It is important to not confuse the two sets of color capabilities:
 otherwise red/blue will be interchanged on the display.
 .PP
-On an HP-like terminal, use \fBscp\fP with a color pair number parameter to set
-which color pair is current.
+On an HP-like terminal,
+use
+.B \%set_color_pair
+.RB ( scp )
+with a color pair number parameter to set the current color pair.
 .PP
-Some terminals allow the \fIcolor values\fP to be modified:
+Some terminals allow the color indices to be remapped.
 .bP
-On a Tektronix-like terminal, the capability \fBccc\fP may be present to
-indicate that colors can be modified.
-If so, the \fBinitc\fP capability will
-take a color number (0 to \fBcolors\fP \- 1)and three more parameters which
-describe the color.
+On a Tektronix-like terminal,
+the
+.B \%can_change_color
+.RB ( ccc )
+capability indicates that colors can be modified.
+In that event,
+use the
+.I \%init_color
+.RB ( initc )
+string capability to configure a color.
+It takes a color number
+(0 to
+.B colors
+\- 1)
+and three more parameters that describe the color.
 These three parameters default to being interpreted as RGB
-(Red, Green, Blue) values.
-If the Boolean capability \fBhls\fP is present,
-they are instead as HLS (Hue, Lightness, Saturation) indices.
-The ranges are
-terminal-dependent.
+(Red, Green, Blue)
+values.
+If the Boolean capability
+.B \%hue_lightness_saturation
+.RB ( hls )
+is present,
+they are instead HLS
+(Hue, Lightness, Saturation)
+indices.
+The valid ranges are terminal-dependent.
 .bP
-On an HP-like terminal, \fBinitp\fP may give a capability for changing a
-color pair value.
-It will take seven parameters; a color pair number (0 to
-\fBmax_pairs\fP \- 1), and two triples describing first background and then
-foreground colors.
-These parameters must be (Red, Green, Blue) or
-(Hue, Lightness, Saturation) depending on \fBhls\fP.
+On an HP-like terminal,
+.B \%initp
+may provide a capability for changing a color pair value.
+It takes seven parameters;
+a color pair number
+(0 to
+.B \%max_pairs
+\- 1),
+and two triples describing first background and then foreground colors.
+These parameters must be
+(Red, Green, Blue)
+or
+(Hue, Lightness, Saturation)
+depending on
+.BR hls "."
+.bP
+The
+.B \%orig_colors
+.RB \%( oc )
+(\*(``original colors\*('')
+string capability
+resets all colors or color pairs
+to their default values for the terminal.
+.\" XXX: Some terminal type descriptions specify the `oc` capability
+.\" even if they lack `ccc` and `initc`.
 .PP
-On some color terminals, colors collide with highlights.
+On some color terminals,
+colors collide with highlights,
+meaning that some highlighting attributes can't be used with colors.
 You can register
-these collisions with the \fBncv\fP capability.
-This is a bit mask of
-attributes not to be used when colors are enabled.
-The correspondence with the
-attributes understood by \fBcurses\fP is as follows:
+these collisions with the
+.B \%no_color_video
+.RB ( ncv )
+capability,
+which encodes the unavailable attributes as bits in an integer.
+The correspondence with the attributes understood by
+.I curses
+follows.
 .PP
 .TS
 center;
@@ -1908,14 +1973,22 @@ A_VERTICAL	14	16384	sgr1
 A_ITALIC	15	32768	sitm
 .TE
 .PP
-For example, on many IBM PC consoles, the underline attribute collides with the
-foreground color blue and is not available in color mode.
-These should have
-an \fBncv\fP capability of 2.
+For example,
+on many IBM PC consoles,
+the underline attribute
+collides with the foreground color blue
+and is not available in color mode.
+Such devices should assign the
+.B ncv
+capability a value of 2.
 .PP
-SVr4 curses does nothing with \fBncv\fP,
-\fI\%ncurses\fP recognizes it and optimizes
-the output in favor of colors.
+SVr4
+.I curses
+does nothing with
+.BR ncv ","
+but
+.I \%ncurses
+recognizes it and optimizes the output in favor of colors.
 .SS Miscellaneous
 If the terminal requires other than a null (zero) character as a pad, then this
 can be given as pad.
@@ -2061,93 +2134,15 @@ Note that in older terminfo versions, this capability was called
 Other specific terminal problems may be corrected by adding more
 capabilities of the form \fBx\fIx\fR.
 .SS "Pitfalls of Long Entries"
-Long terminfo entries are unlikely to be a problem; to date, no entry has even
-approached terminfo's 4096-byte string-table maximum.
-Unfortunately, the termcap
-translations are much more strictly limited (to 1023 bytes),
-thus termcap translations of long terminfo entries can cause problems.
-.PP
-The man pages for 4.3BSD
-and older versions of \fBtgetent\fP instruct the user to
-allocate a 1024-byte buffer for the termcap entry.
-The entry gets null-terminated by
-the termcap library, so that makes the maximum safe length for a termcap entry
-1k\-1 (1023) bytes.
-Depending on what the application and the termcap library being used does,
-and where in the termcap file the terminal type that \fBtgetent\fP
-is searching for is, several bad things can happen:
-.bP
-some termcap libraries print a warning message,
-.bP
-some exit if they find an entry that's longer than 1023 bytes,
-.bP
-some neither exit nor warn, doing nothing useful, and
-.bP
-some simply truncate the entries to 1023 bytes.
-.PP
-Some application programs allocate more than
-the recommended 1K for the termcap entry; others do not.
-.PP
-Each termcap entry has two important sizes associated with it: before
-\*(``tc\*('' expansion, and after \*(``tc\*('' expansion.
-\*(``tc\*('' is the capability that
-tacks on another termcap entry to the end of the current one, to add
-on its capabilities.
-If a termcap entry does not use the \*(``tc\*(''
-capability, then of course the two lengths are the same.
-.PP
-The \*(``before tc expansion\*('' length is the most important one, because it
-affects more than just users of that particular terminal.
-This is the
-length of the entry as it exists in /etc/termcap, minus the
-backslash-newline pairs, which \fBtgetent\fP strips out while reading it.
-Some termcap libraries strip off the final newline, too (GNU termcap does not).
-Now suppose:
-.bP
-a termcap entry before expansion is more than 1023 bytes long,
-.bP
-and the application has only allocated a 1k buffer,
-.bP
-and the termcap library (like the one in BSD/OS 1.1 and GNU) reads
-the whole entry into the buffer, no matter what its length, to see
-if it is the entry it wants,
-.bP
-and \fBtgetent\fP is searching for a terminal type that either is the
-long entry, appears in the termcap file after the long entry, or
-does not appear in the file at all (so that \fBtgetent\fP has to search
-the whole termcap file).
-.PP
-Then \fBtgetent\fP will overwrite memory,
-perhaps its stack,
-and probably core dump the program.
-Programs like telnet are particularly vulnerable; modern telnets
-pass along values like the terminal type automatically.
-The results are almost
-as undesirable with a termcap library, like SunOS 4.1.3 and Ultrix 4.4, that
-prints warning messages when it reads an overly long termcap entry.
-If a
-termcap library truncates long entries, like OSF/1 3.0, it is immune to dying
-here but will return incorrect data for the terminal.
-.PP
-The \*(``after tc expansion\*('' length will have a similar effect to the
-above, but only for people who actually set \fITERM\fP to that terminal
-type, since \fBtgetent\fP only does \*(``tc\*('' expansion once it is found the
-terminal type it was looking for, not while searching.
-.PP
-In summary, a termcap entry that is longer than 1023 bytes can cause,
-on various combinations of termcap libraries and applications, a core
-dump, warnings, or incorrect operation.
-If it is too long even before
-\*(``tc\*('' expansion, it will have this effect even for users of some other
-terminal types and users whose \fITERM\fP variable does not have a termcap
-entry.
-.PP
-When in \-C (translate to termcap) mode,
-the \fI\%ncurses\fP implementation of
-\fB@TIC@\fP(1M) issues warning messages when the pre-tc length of a termcap
-translation is too long.
-The \-c (check) option also checks resolved (after tc
-expansion) lengths.
+In contrast to
+.IR termcap ","
+long terminal type descriptions
+entries are unlikely to be a problem with
+.IR \%term\%info ";"
+to date,
+no entry has even approached
+.IR \%term\%info 's
+4096-byte string-table maximum.
 .SH FILES
 .TP
 .I @TERMINFO@

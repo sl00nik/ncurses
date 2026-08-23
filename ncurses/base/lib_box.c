@@ -1,5 +1,5 @@
 /****************************************************************************
- * Copyright 2020 Thomas E. Dickey                                          *
+ * Copyright 2020,2026 Thomas E. Dickey                                     *
  * Copyright 1998-2010,2017 Free Software Foundation, Inc.                  *
  *                                                                          *
  * Permission is hereby granted, free of charge, to any person obtaining a  *
@@ -43,7 +43,7 @@
 
 #include <curses.priv.h>
 
-MODULE_ID("$Id: lib_box.c,v 1.26 2020/02/02 23:34:34 tom Exp $")
+MODULE_ID("$Id: lib_box.c,v 1.28 2026/08/22 19:46:08 tom Exp $")
 
 #if USE_WIDEC_SUPPORT
 static NCURSES_INLINE chtype
@@ -125,7 +125,7 @@ wborder(WINDOW *win,
 	win->_line[i].firstchar = 0;
 	win->_line[i].lastchar = endx;
 #if USE_WIDEC_SUPPORT
-	if (isWidecExt(win->_line[i].text[1])) {
+	if (endx > 0 && isWidecExt(win->_line[i].text[1])) {
 	    SetChar2(win->_line[i].text[1], ' ');
 	}
 #endif

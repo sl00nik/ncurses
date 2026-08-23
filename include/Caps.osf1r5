@@ -1,5 +1,5 @@
 ##############################################################################
-# Copyright 2019-2024,2025 Thomas E. Dickey                                  #
+# Copyright 2019-2025,2026 Thomas E. Dickey                                  #
 # Copyright 2002-2015,2016 Free Software Foundation, Inc.                    #
 #                                                                            #
 # Permission is hereby granted, free of charge, to any person obtaining a    #
@@ -29,7 +29,7 @@
 #
 # Author: Thomas Dickey
 #
-# $Id: Caps.osf1r5,v 1.26 2025/11/12 01:27:41 tom Exp $
+# $Id: Caps.osf1r5,v 1.28 2026/08/22 21:44:38 tom Exp $
 #
 # This is an adaptation of ncurses' termcap/terminfo capability table, which
 # is designed to align with OSF/1 version 5 (Tru64) terminfo.
@@ -766,7 +766,7 @@ micro_row_address		mvpa	str	Zc	-		-	-----	Like row_address #1 in micro mode
 micro_up			mcuu1	str	Zd	-		-	-----	Like cursor_up in micro mode
 mouse_info			minfo	str	Mi	-		-	-----	Mouse status information
 order_of_pins			porder	str	Ze	-		-	-----	Match software bits to print-head pins
-orig_colors			oc	str	oc	-		-	-----	Set all color pairs to the original ones
+orig_colors			oc	str	oc	-		-	-----	Set all colors and/or pairs to the original ones
 orig_pair			op	str	op	-		-	-----	Set default pair to its original value
 parm_down_micro			mcud	str	Zf	-		-	-----	Like parm_down_cursor in micro mode
 parm_left_micro			mcub	str	Zg	-		-	-----	Like parm_left_cursor in micro mode

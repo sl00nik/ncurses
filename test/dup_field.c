@@ -26,7 +26,7 @@
  * authorization.                                                           *
  ****************************************************************************/
 /*
- * $Id: dup_field.c,v 1.28 2026/08/16 00:30:27 tom Exp $
+ * $Id: dup_field.c,v 1.29 2026/08/22 16:58:58 tom Exp $
  *
  * Demonstrate dup_field() and link_field()
  */
@@ -145,7 +145,7 @@ make_field(int frow, int fcol, int rows, int cols)
 
     if (f) {
 	set_field_type(f, TYPE_ALPHA, 1);
-	set_field_back(f, (chtype) (COLOR_PAIR(1) | A_UNDERLINE));
+	set_field_back(f, ((chtype) COLOR_PAIR(1) | A_UNDERLINE));
 	init_edit_field(f, empty);
 	is_editing[num_fields] = TRUE;
 	all_fields[num_fields++] = f;

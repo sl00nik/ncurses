@@ -1,5 +1,5 @@
 ##############################################################################
-# Copyright 2019-2024,2025 Thomas E. Dickey                                  #
+# Copyright 2019-2025,2026 Thomas E. Dickey                                  #
 # Copyright 2002-2015,2016 Free Software Foundation, Inc.                    #
 #                                                                            #
 # Permission is hereby granted, free of charge, to any person obtaining a    #
@@ -29,7 +29,7 @@
 #
 # Author: Thomas Dickey
 #
-# $Id: Caps.hpux11,v 1.28 2025/11/12 01:27:41 tom Exp $
+# $Id: Caps.hpux11,v 1.30 2026/08/22 21:44:20 tom Exp $
 #
 # This is an adaptation of ncurses' termcap/terminfo capability table, which
 # is designed to align with HPUX 11.x's terminfo.
@@ -688,7 +688,7 @@ user9				u9	str	u9	-		-	-----	User string #9
 # SVr4 added these capabilities to support color
 #
 orig_pair			op	str	op	-		-	-----	Set default pair to its original value
-orig_colors			oc	str	oc	-		-	-----	Set all color pairs to the original ones
+orig_colors			oc	str	oc	-		-	-----	Set all colors and/or pairs to the original ones
 initialize_color		initc	str	Ic	-		-	-----	initialize color #1 to (#2,#3,#4)
 initialize_pair			initp	str	Ip	-		-	-----	Initialize color pair #1 to fg=(#2,#3,#4), bg=(#5,#6,#7)
 set_color_pair			scp	str	sp	-		-	-----	Set current color pair to #1

@@ -1,5 +1,5 @@
 /****************************************************************************
- * Copyright 2018-2024,2025 Thomas E. Dickey                                *
+ * Copyright 2018-2025,2026 Thomas E. Dickey                                *
  * Copyright 2012,2013 Free Software Foundation, Inc.                       *
  *                                                                          *
  * Permission is hereby granted, free of charge, to any person obtaining a  *
@@ -31,9 +31,9 @@
 
 #if USE_WIDEC_SUPPORT
 
-MODULE_ID("$Id: widechars.c,v 1.11 2025/02/20 01:02:09 tom Exp $")
+MODULE_ID("$Id: widechars.c,v 1.13 2026/08/22 23:40:38 tom Exp $")
 
-#if defined(_NC_MINGW)
+#if defined(_NC_MINGW) && !defined(_UCRT)
 /*
  * MinGW has wide-character functions, but they do not work correctly.
  */

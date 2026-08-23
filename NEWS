@@ -26,7 +26,7 @@
 -- sale, use or other dealings in this Software without prior written        --
 -- authorization.                                                            --
 -------------------------------------------------------------------------------
--- $Id: NEWS,v 1.4512 2026/08/15 22:51:49 tom Exp $
+-- $Id: NEWS,v 1.4520 2026/08/22 23:39:26 tom Exp $
 -------------------------------------------------------------------------------
 
 This is a log of changes that ncurses has gone through since Zeyd started
@@ -46,6 +46,26 @@ See the AUTHORS file for the corresponding full names.
 Changes through 1.9.9e did not credit all contributions;
 it is not possible to add this information.
 
+20260822
+	+ add a limit-check in wborder (patch by Bjoern Foersterling).
+	+ improve limit-checks for trace calls in read_entry.c (report by Yeo
+	  JooHo).
+	+ improve tic warnings regarding the empty smir/rmir strings which
+	  may be added in dump_entry.c for termcap if ich/ich1 are present but 
+	  smir/rmir are not.
+	+ add sun+fkeys -TD
+	+ add dtterm-sk, dtterm+sk -TD
+	+ add ich1 to several entries, providing for support of non-curses
+	  applications via termcap only -TD
+	+ add dch/dch1 to rxvt-basic -TD
+	+ drop redundant xterm=setaf2 (patch by Branden Robinson)
+	+ documentation improvements (patches by Branden Robinson).
+	  + improve color discussion in man pages
+	  + improve formatting/style of man pages
+	> improve wide-character support with UCRT (patches by Liu Hao)
+	  + use UCRT's wcrtomb rather than _nc_wctomb
+	  + skip trailing cells of double-width characters
+
 20260815
 	+ improve tic warnings for paired capabilities, including ich/ich1.
 	+ use xterm+tmux2 in xterm+nofkeys to match xterm patch #407 -TD
@@ -60,7 +80,7 @@ it is not possible to add this information.
 	+ add limit-checks in lib_screen.c and lib_ins_wch.c in case a 2-cell
 	  character is added at the right-margin (report by Miroslav Lichvar).
 	+ improve limit-check for extended names in _nc_read_termtype
-	  (report/patch by Yeo Jooho).
+	  (report/patch by Yeo JooHo).
 	+ improve description of init_extended_color in man page (patch by
 	  Andrew Burgess).
 	+ modify test/Makefile.in to fix "make check" when ncurses is built in

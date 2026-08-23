@@ -1,5 +1,5 @@
 ##############################################################################
-# Copyright 2019-2024,2025 Thomas E. Dickey                                  #
+# Copyright 2019-2025,2026 Thomas E. Dickey                                  #
 # Copyright 2001-2015,2016 Free Software Foundation, Inc.                    #
 #                                                                            #
 # Permission is hereby granted, free of charge, to any person obtaining a    #
@@ -29,7 +29,7 @@
 #
 # Author: Thomas Dickey
 #
-# $Id: Caps.uwin,v 1.25 2025/11/12 01:06:36 Branden.Robinson Exp $
+# $Id: Caps.uwin,v 1.27 2026/08/22 21:44:48 tom Exp $
 #
 # This is an adaptation of ncurses' termcap/terminfo capability table, which
 # is designed to align with U/Win's terminfo.
@@ -627,7 +627,7 @@ release_mouse			relm	str	Rm	-		-	-----	Curses should release the mouse */
 color_names			colornm	str	Yw	-		-	-----	Give name for color #1
 initialize_color		initc	str	Ic	-		-	-----	initialize color #1 to (#2,#3,#4)
 initialize_pair			initp	str	Ip	-		-	-----	Initialize color pair #1 to fg=(#2,#3,#4), bg=(#5,#6,#7)
-orig_colors			oc	str	oc	-		-	-----	Set all color pairs to the original ones
+orig_colors			oc	str	oc	-		-	-----	Set all colors and/or pairs to the original ones
 orig_pair			op	str	op	-		-	-----	Set default pair to its original value
 set_a_background		setab	str	AB	-		-	-----	Set background color to #1, using ANSI escape
 set_a_foreground		setaf	str	AF	-		-	-----	Set foreground color to #1, using ANSI escape

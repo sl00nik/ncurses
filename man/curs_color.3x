@@ -27,8 +27,8 @@
 .\" authorization.                                                           *
 .\"***************************************************************************
 .\"
-.\" $Id: curs_color.3x,v 1.128 2026/08/15 14:32:56 tom Exp $
-.TH curs_color 3X 2026-08-15 "ncurses @NCURSES_MAJOR@.@NCURSES_MINOR@" "Library calls"
+.\" $Id: curs_color.3x,v 1.137 2026/08/22 20:32:24 tom Exp $
+.TH curs_color 3X 2026-08-22 "ncurses @NCURSES_MAJOR@.@NCURSES_MINOR@" "Library calls"
 .ie \n(.g \{\
 .ds `` \(lq
 .ds '' \(rq
@@ -115,32 +115,66 @@ manipulate terminal colors with \fIcurses\fR
 .fi
 .SH DESCRIPTION
 .SS Overview
-\fIcurses\fP supports color attributes on terminals with that
-capability.
-Call \fB\%start_color\fP
-(typically right after \fB\%initscr\fP(3X))
-to enable this feature.
-Colors are always used in pairs.
+.I curses
+supports color rendering on terminals with applicable capabilities.
+Once the library has initialized the terminal,
+.B \%has_colors
+tells an application whether that terminal type has color capability.
+If it does,
+calling
+.B \%start_color
+enables the feature.
+(See section \*(``NOTES\*('' below regarding \fB\%ripoffline\fP(3X).)
+.PP
+When applying colors to a
+.I curses
+window,
+the library manages them in pairs.
 A
 .I "color pair"
-couples a foreground color for characters with a background color for
-the blank field on which characters are rendered.
-\fB\%init_pair\fP initializes a color pair.
-The macro \fB\%COLOR_PAIR\fP(\fIn\fP) can then convert the pair to a
-video attribute.
-.PP
-If a terminal has the relevant capability,
-\fB\%init_color\fP permits (re)definition of a color.
-\fB\%has_colors\fP and \fB\%can_change_color\fP
-return \fBTRUE\fP or \fBFALSE\fP,
-depending on whether the terminal has color capability and whether the
-programmer can change the colors.
-\fB\%color_content\fP permits extraction of the
+couples a foreground color applied
+to the visible strokes of a glyph
+with a background color for the field in the character cell
+within which the glyph appears.
+.B \%init_pair
+initializes a color pair identifier,
+whose value you select,
+from a pair of color indices,
+foreground and background.
+Each index represents a color.
+.I curses
+standardizes and predefines a small set of color indices;
+see section \*(``CONSTANTS\*('' below.
+The macro
+.B \%COLOR_PAIR(\fIn\fP)
+converts a pair
+.I n
+thus intialized to the value required to encode it in a
+.I \%chtype
+or
+.IR \%attr_t "."
+.B \%pair_content
+permits discovery of a color pair's current definition.
+Configure at least one color pair to use the color feature.
+.B \%color_content
+extracts the
 red,
 green,
-and blue components of an initialized color.
-\fB\%pair_content\fP permits discovery of a color pair's current
-definition.
+and blue components of color the using the given index.
+.PP
+.B \%can_change_color
+tells an application whether the terminal
+permits (re)definition of a color.
+If it does,
+you can call
+.B \%init_color
+to update the specified color index to use
+red,
+green,
+and blue components of your choice.
+.PP
+Subsection \*(``Color Handling\*('' of \fB\%terminfo\fP(5)
+describes the capabilities that terminal types use to manage color.
 .SS Rendering
 .I curses
 combines the following data to render a character cell.
@@ -157,40 +191,59 @@ window background character attributes,
 as from \fB\%wbkgdset\fP(3X) or \fB\%wbkgrndset\fP(3X)
 .PP
 Per-character and window attributes are usually set through a function
-parameter containing attributes including a color pair value.
+parameter containing attributes and/or a color pair identifier.
 Some functions,
-such as \fB\%wattr_set\fP,
+such as
+.BR \%wattr_set ","
 use a separate color pair number parameter.
 .PP
 The background character is a special case:
 it includes a character code,
-just as if it were passed to \fB\%waddch\fP.
+as if it were passed to
+.BR \%waddch "."
 .PP
-The \fIcurses\fP library does the actual work of combining these color
-pairs in an internal function called from \fB\%waddch\fP:
+The
+.I curses
+library does the actual work of combining these color pairs
+in an internal function called from
+.BR \%waddch "."
 .bP
-If the parameter passed to \fB\%waddch\fP is \fIblank\fP,
+If the parameter passed to
+.B \%waddch
+is blank
+(see \fB\%waddch\fP(3X) or \fB\%wadd_wch\fP(3X)),
 and it uses the special color pair 0,
-\fIcurses\fP next checks the window attribute.
+.I curses
+next checks the window attribute.
 .RS
 .bP
 If the window attribute does not use color pair 0,
-\fIcurses\fP uses the color pair from the window attribute.
+.I curses
+uses the color pair from the window attribute.
 .bP
-Otherwise, \fIcurses\fP uses the background character.
+Otherwise,
+.I curses
+uses the background character.
 .RE
 .bP
-If the parameter passed to \fB\%waddch\fP is \fInot blank\fP,
+If the parameter passed to
+.B \%waddch
+is not blank,
 or it does not use the special color pair 0,
-\fIcurses\fP prefers the color pair from the parameter,
+.I curses
+prefers the color pair from the parameter,
 if it is nonzero.
-Otherwise, it tries the window attribute next, and finally the
-background character.
+Otherwise,
+it tries the window attribute next,
+and finally the background character.
 .PP
-Some \fIcurses\fP functions such as \fB\%wprintw\fP call \fB\%waddch\fP.
+Some
+.I curses
+functions such as \fB\%wprintw\fP(3X) call
+.BR \%waddch "."
 Those do not combine its parameter with a color pair.
-Consequently those calls use only the window attribute or
-the background character.
+Consequently those calls use only the window attribute
+or the background character.
 .SH CONSTANTS
 ISO\ 6429 and ECMA-48
 define eight standard colors
@@ -304,7 +357,8 @@ to denote the \fIdefault color\fP (see \fB\%use_default_colors\fP(3X)).
 the terminal database's \fB\%max_pairs\fP capability,
 (see \fB\%terminfo\fP(5)).
 .bP
-valid color pair values are in the range \fB1\fP to \fB\%COLOR_PAIRS\-1\fP,
+valid color pair identifiers
+are in the range \fB1\fP to \fB\%COLOR_PAIRS\-1\fP,
 inclusive.
 .bP
 color pair \fB0\fP is special; it denotes \*(``no color\*(''.
@@ -368,7 +422,7 @@ the number of the color pair to be changed, the foreground
 color number, and the background color number.
 For portable applications:
 .bP
-The first argument must be a valid color pair value.
+The first argument must be a valid color pair identifier.
 If default colors are used (see \fB\%use_default_colors\fP(3X))
 the upper limit is adjusted to allow for extra pairs which use
 a default color in foreground and/or background.
@@ -569,6 +623,18 @@ color pair identifiers outside the range
 inclusive.
 .RE
 .SH NOTES
+Setting a background color via a color pair identifier
+affects only character cells
+that a character write operation explicitly touches.
+To change the background color used
+when parts of a window are blanked by erasing or scrolling operations,
+see \fB\%curs_bkgd\fP(3X).
+.PP
+Windows created by \fB\%ripoffline\fP(3X)
+do not inherit color pair configuration applied to
+.IR stdscr ";"
+they must be configured independently.
+.PP
 In
 .IR \%ncurses ","
 .B \%init_pair
@@ -609,12 +675,6 @@ The SVr4 and X/Open Curses interface was not really designed
 with this in mind;
 historical implementations may use a single shared color palette.
 .PP
-Setting an implicit background color via a color pair affects only
-character cells that a character write operation explicitly touches.
-To change the background color used
-when parts of a window are blanked by erasing or scrolling operations,
-see \fB\%curs_bkgd\fP(3X).
-.PP
 Several caveats apply to IBM PC-compatible machines
 of the 80486 era and earlier
 with CGA/EGA/VGA video.
@@ -643,6 +703,65 @@ you get a blinking yellow foreground instead.
 .bP
 Color RGB values are not configurable on these devices
 (in text mode).
+.SS "Why This Color Model?"
+A programmer new to
+.I curses
+may wonder why the library works with pairs of indexed colors
+instead of \*(``direct\*('' foreground and background RGB triples.
+The answer lies in the limited bandwidth between terminals
+and their time-sharing host machines.
+In the 1980s,
+a 9600bps serial link was considered fast.
+That speed typically corresponded to a data rate
+of 960 bytes per second.
+.\" Consider BSD curses's single "standout" attribute occupying the most
+.\" significant bit of a 7-bit ASCII-encoded character cell, and 8N1
+.\" transmission.  (There is always 1 start bit, thus 8N1 -> 10 bits.)
+Using a single-byte character encoding,
+refreshing an 80\(mu24 terminal screen took two full seconds.
+(Alternatively,
+a channel with this data payload rendered half a frame per second.)
+Adding data to each character cell
+necessary for the \*(``direct\*('' color model
+at 8 bits per color channel
+would add 6 bytes to every character cell,
+extending the full-screen refresh time to 14 seconds.
+Even a pair of 8-bit color values would triple the refresh time.
+.PP
+Moreover,
+the vast majority of
+.I curses
+applications do not demand a wide gamut of colors.
+Even a colorful application like the game \fB\%nethack\fP(6)
+renders most of its interface in monochrome by default.
+A text user interface
+employing the \fBform\fP(3X) or \fBmenu\fP(3X) libraries
+often uses fewer than ten distinct colors at any one time.
+Thus,
+small integers suffice both to index individual colors
+and to pair them.
+Typically,
+each color pair is assigned to a type of user interface element,
+like a button or scroll bar control.
+Further,
+in the original SVr3.2
+.I curses
+implementation of color and today still in
+.IR ncurses 's
+non-wide library,
+.I chtype
+affords few bits for encoding of the color pair identifier.
+.PP
+Even in the common modern scenario where a terminal emulator
+runs on the same host as the
+.I curses
+application,
+and available bandwidth is limited only by the speed of the system bus,
+efficient encoding of character cell data aids performance
+by minimizing copies to and from the kernel's memory space
+and the CPU mode switches thus demanded
+by use of the pseudoterminal (pty) system interface.
+Parsimonious data management also reduces memory cache pressure.
 .SH EXTENSIONS
 The functions marked as extensions originated in
 .IR \%ncurses ","
@@ -734,26 +853,31 @@ color pairs.
 .bP
 .I \%PCCurses
 (1987-1990) provided for only 8 colors
-(and therefore required at most 8\(mu8 = 64 color pairs).
+(and therefore permitted at most 8\(mu8 = 64 color pairs).
 .bP
 .I \%PDCurses
-(1992-present) inherited the 8-color limitation from
-.IR \%PCCurses ,
-but changed this to 256 in version 2.5 (2001),
+(1992-present) initially inherited the 8-color limitation from
+.IR \%PCCurses ","
+but increased it to 256 in version 2.5 (2001),
 and widened its
 .I \%chtype
 from 16 to 32 bits.
 .bP
 X/Open Curses (1992-present)
-specified a new structure type,
+specified a new integral type,
+.IR attr_t ","
+storing rendering attributes
+(see \fB\%attr_on\fP(3X))
+and a color pair identifier,
+and a new structure type,
 .IR \%cchar_t ","
-to store the character code,
-attribute flags,
-and color pair identifier,
+to store a sequence of wide character codes
+separately from the character cell's attributed and color pair,
 allowing an increased range of color pairs.
-It specifies a
-.I short
-as storing identifiers for colors and color pairs,
+The standard specifies
+.I attr_t
+as a
+.IR short ","
 limiting portable values to 15 bits;
 negative values are invalid in System\ V.
 .bP
@@ -764,7 +888,7 @@ uses 8 bits of
 .I \%chtype
 for the color pair identifier.
 .IP
-Version 5.3 (2002) offered a wide-character interface,
+Version 5.3 (2002) introduced a wide-character interface,
 but encoded the color pair identifier with attributes
 in the character type.
 .IP
@@ -774,11 +898,10 @@ uses a separate
 .I int
 for the color pair identifier in a
 .IR \%cchar_t ","
-introducing extension functions to manage the wider type.
-When a color pair value fits in 8 bits,
+adding extension functions to manage the wider type.
+When a color pair identifier fits in 8 bits,
 .I \%ncurses
-permits color pair data to be manipulated
-via the functions taking
+permits manipulation of color pair identifiers with functions taking
 .I \%chtype
 arguments,
 even when a
@@ -799,7 +922,7 @@ that size is unchanged.
 Like
 .I \%ncurses
 before version 6,
-the NetBSD color pair datum is stored in
+the NetBSD color pair identifier is stored in
 the attributes field of
 .IR \%cchar_t ","
 limiting the number of color pairs.

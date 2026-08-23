@@ -49,7 +49,7 @@
 #include <parametrized.h>
 #include <transform.h>
 
-MODULE_ID("$Id: tic.c,v 1.352 2026/08/15 23:11:50 tom Exp $")
+MODULE_ID("$Id: tic.c,v 1.355 2026/08/22 16:56:15 tom Exp $")
 
 #define STDIN_NAME "<stdin>"
 
@@ -2318,7 +2318,10 @@ check_1_infotocap(const char *name, NCURSES_CONST char *value, int count)
 #undef myParam
 	break;
     }
-    return strdup(result);
+    result = strdup(result);
+    if (result == NULL)
+	failed("check_1_infotocap");
+    return result;
 }
 
 #define IsDelay(ch) ((ch) == '.' || isdigit(UChar(ch)))
@@ -3389,6 +3392,7 @@ check_termtype(TERMTYPE2 *tp, bool literal)
     /* *INDENT-ON* */
 
     /*
+     * As noted in 1995:
      * Some standard applications (e.g., vi) and some non-curses
      * applications (e.g., jove) get confused if we have both ich1 and
      * smir/rmir.  Let's be nice and warn about that, too, even though
@@ -3397,8 +3401,12 @@ check_termtype(TERMTYPE2 *tp, bool literal)
      * Since only termcap applications are affected, limit the warning, e.g.,
      * using -v1 or -vv options for terminfo, and -v for termcap sources.
      */
+#define NON_EMPTY(name) (PRESENT(name) && *name)
     if (PRESENT(enter_insert_mode) || PRESENT(exit_insert_mode)) {
-	if (((debug_level > 1) || (_nc_syntax == SYN_TERMCAP)) &&
+	if (((debug_level > 1)
+	     || (_nc_syntax == SYN_TERMCAP
+		 && (NON_EMPTY(enter_insert_mode)
+		     || NON_EMPTY(exit_insert_mode)))) &&
 	    PRESENT(insert_character)) {
 	    _nc_warning("non-curses applications may be confused by ich1 with smir/rmir");
 	} else if (_nc_syntax != SYN_TERMCAP) {

@@ -42,7 +42,7 @@
 
 #include <tic.h>
 
-MODULE_ID("$Id: read_entry.c,v 1.182 2026/08/15 14:27:32 tom Exp $")
+MODULE_ID("$Id: read_entry.c,v 1.185 2026/08/22 18:53:54 tom Exp $")
 
 #define MyNumber(n) (short) LOW_MSB(n)
 
@@ -156,7 +156,7 @@ convert_strings(char *buf, char **Strings, int count, int size,
 	    if (nn >= 0 && nn < size) {
 		Strings[i] = (nn + table);
 		TR(TRACE_DATABASE, ("Strings[%d] = %s", i,
-				    _nc_visbuf(Strings[i])));
+				    _nc_visbufn(Strings[i], size - nn)));
 	    } else {
 		TR(TRACE_DATABASE,
 		   ("found out-of-range index %d to Strings[%d]", nn, i));
@@ -488,7 +488,8 @@ _nc_read_termtype(TERMTYPE2 *ptr, char *buffer, int limit)
 	    if (Read(ptr->ext_str_table, (unsigned) ext_str_limit) != ext_str_limit) {
 		returnDB(TGETENT_NO);
 	    }
-	    TR(TRACE_DATABASE, ("first extended-string is %s", _nc_visbuf(ptr->ext_str_table)));
+	    TR(TRACE_DATABASE, ("first extended-string is %s",
+				_nc_visbufn(ptr->ext_str_table, ext_str_limit)));
 	}
 
 	if ((ptr->ext_Strings = UShort(ext_str_count)) != 0) {
@@ -503,18 +504,21 @@ _nc_read_termtype(TERMTYPE2 *ptr, char *buffer, int limit)
 				 ext_str_limit, ptr->ext_str_table, FALSE)) {
 		returnDB(TGETENT_NO);
 	    }
+	    /* convert_strings ensures that the strings are nul-terminated */
 	    for (i = ext_str_count - 1; i >= 0; i--) {
+		int source = i + str_count;
+		int target = i + STRCOUNT;
 		TR(TRACE_DATABASE, ("MOVE from [%d:%d] %s",
-				    i, i + str_count,
-				    _nc_visbuf(ptr->Strings[i + str_count])));
-		ptr->Strings[i + STRCOUNT] = ptr->Strings[i + str_count];
-		if (VALID_STRING(ptr->Strings[i + STRCOUNT])) {
-		    base += (int) (strlen(ptr->Strings[i + STRCOUNT]) + 1);
+				    i, source,
+				    _nc_visbuf(ptr->Strings[source])));
+		ptr->Strings[target] = ptr->Strings[source];
+		if (VALID_STRING(ptr->Strings[target])) {
+		    base += (int) (strlen(ptr->Strings[target]) + 1);
 		    ++check;
 		}
 		TR(TRACE_DATABASE, ("... to    [%d] %s",
-				    i + STRCOUNT,
-				    _nc_visbuf(ptr->Strings[i + STRCOUNT])));
+				    target,
+				    _nc_visbuf(ptr->Strings[target])));
 	    }
 	    TR(TRACE_DATABASE, ("Check table-size: %d/%d", check, ext_str_usage));
 	    if (check != ext_str_usage) {
@@ -545,14 +549,15 @@ _nc_read_termtype(TERMTYPE2 *ptr, char *buffer, int limit)
 	    if (!convert_strings(buf + (2 * ext_str_count),
 				 ptr->ext_Names,
 				 (int) need,
-				 ext_str_limit - base, ptr->ext_str_table + base,
+				 ext_str_limit - base,
+				 ptr->ext_str_table + base,
 				 TRUE)) {
 		TR(TRACE_DATABASE, ("...failed to convert ext_NAMES"));
 		returnDB(TGETENT_NO);
 	    }
 	    TR(TRACE_DATABASE,
 	       ("ext_NAMES start @%d in extended_strings, first = %s",
-		base, _nc_visbuf(ptr->ext_str_table + base)));
+		base, _nc_visbufn(ptr->ext_str_table + base, (int) need)));
 	}
 
 	TR(TRACE_DATABASE,

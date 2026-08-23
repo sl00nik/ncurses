@@ -26,7 +26,7 @@
  * authorization.                                                           *
  ****************************************************************************/
 /*
- * $Id: move_field.c,v 1.30 2026/08/16 00:30:53 tom Exp $
+ * $Id: move_field.c,v 1.31 2026/08/22 16:58:18 tom Exp $
  *
  * Demonstrate move_field().
  */
@@ -146,7 +146,7 @@ make_field(int frow, int fcol, int rows, int cols)
 
     if (f) {
 	set_field_type(f, TYPE_ALPHA, 1);
-	set_field_back(f, (chtype) (COLOR_PAIR(1) | A_UNDERLINE));
+	set_field_back(f, ((chtype) COLOR_PAIR(1) | A_UNDERLINE));
 	init_edit_field(f, empty);
 	all_fields[num_fields++] = f;
     }

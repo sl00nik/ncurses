@@ -27,7 +27,7 @@
  * authorization.                                                           *
  ****************************************************************************/
 /*
- * $Id: clip_printw.c,v 1.28 2026/04/25 16:40:04 tom Exp $
+ * $Id: clip_printw.c,v 1.29 2026/08/22 17:47:14 tom Exp $
  *
  * demonstrate how to use printw with/without wrapping.
  */
@@ -396,7 +396,7 @@ test_clipping(WINDOW *win)
 		for (j = 0; j < need; ++j) {
 		    buffer[j] = (char) ('A' + (j % 26));
 		}
-		buffer[need - 1] = '\0';
+		buffer[need] = '\0';
 		st.status = clip_wprintw(win, st.single, fmt, '[', buffer, ']');
 		free(buffer);
 	    }

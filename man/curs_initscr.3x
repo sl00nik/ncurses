@@ -1,5 +1,5 @@
 .\"***************************************************************************
-.\" Copyright 2018-2024,2025 Thomas E. Dickey                                *
+.\" Copyright 2018-2025,2026 Thomas E. Dickey                                *
 .\" Copyright 1998-2016,2017 Free Software Foundation, Inc.                  *
 .\"                                                                          *
 .\" Permission is hereby granted, free of charge, to any person obtaining a  *
@@ -27,8 +27,8 @@
 .\" authorization.                                                           *
 .\"***************************************************************************
 .\"
-.\" $Id: curs_initscr.3x,v 1.112 2025/08/23 22:41:44 tom Exp $
-.TH curs_initscr 3X 2025-08-23 "ncurses @NCURSES_MAJOR@.@NCURSES_MINOR@" "Library calls"
+.\" $Id: curs_initscr.3x,v 1.114 2026/08/22 20:08:37 tom Exp $
+.TH curs_initscr 3X 2026-08-22 "ncurses @NCURSES_MAJOR@.@NCURSES_MINOR@" "Library calls"
 .ie \n(.g \{\
 .ds `` \(lq
 .ds '' \(rq
@@ -114,8 +114,8 @@ If errors occur,
 writes an appropriate diagnostic message to the standard error stream
 and exits;
 otherwise,
-it returns a pointer to
-.BR stdscr "."
+it returns
+.BR \%stdscr "."
 .SS newterm
 An application that manages multiple terminals should call
 .B \%newterm
@@ -282,6 +282,12 @@ after
 when the application has no more need of a terminal device
 but will not soon exit.
 .SH RETURN VALUE
+.B \%initscr
+returns
+.BR \%stdscr ","
+or does not return at all
+(but see section \*(``PORTABILITY\*('' below regarding BSD
+.IR curses ")."
 .B \%delscreen
 returns no value.
 .B \%endwin
@@ -471,7 +477,7 @@ instead returned a null pointer.
 Neither exited the application.
 It is safe but redundant to check the return value of
 .I \%initscr
-in X/Open Curses.
+in implementations conforming to X/Open Curses.
 .PP
 Calling
 .I \%endwin

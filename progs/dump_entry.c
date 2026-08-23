@@ -40,7 +40,7 @@
 #include <termsort.h>		/* this C file is generated */
 #include <parametrized.h>	/* so is this */
 
-MODULE_ID("$Id: dump_entry.c,v 1.206 2026/07/25 23:39:11 tom Exp $")
+MODULE_ID("$Id: dump_entry.c,v 1.207 2026/08/22 10:07:37 tom Exp $")
 
 #define DISCARD(string) string = ABSENT_STRING
 #define PRINTF (void) printf
@@ -1057,11 +1057,13 @@ fmt_entry(TERMTYPE2 *tterm,
 
 	if (outform == F_TERMCAP) {
 	    /*
+	     * As noted in 1995:
 	     * Some older versions of vi want rmir/smir to be defined
 	     * for ich/ich1 to work.  If they're not defined, force
 	     * them to be output as defined and empty.
 	     */
-	    if (PRESENT(insert_character) || PRESENT(parm_ich)) {
+	    if (_nc_strict_bsd
+		&& (PRESENT(insert_character) || PRESENT(parm_ich))) {
 		if (SAME_CAP(i, enter_insert_mode)
 		    && enter_insert_mode == ABSENT_STRING) {
 		    _nc_STRCPY(buffer, "im=", sizeof(buffer));
