@@ -41,7 +41,7 @@
 
 #define CUR TerminalType(my_term).
 
-MODULE_ID("$Id: win32_driver.c,v 1.24 2026/08/22 22:02:50 Liu.Hao Exp $")
+MODULE_ID("$Id: win32_driver.c,v 1.25 2026/09/05 20:33:40 tom Exp $")
 
 #define WINMAGIC NCDRV_MAGIC(NCDRV_WINCONSOLE)
 #define EXP_OPTIMIZE 0
@@ -171,13 +171,13 @@ con_write16(TERMINAL_CONTROL_BLOCK * TCB,
     for (i = actual = 0; i < limit; i++) {
 	ch = str[i];
 	if (isWidecExt(ch)) {
-            /* Skip trailing cell of a double-width character.  */
-            ci[actual].CharInfoChar = ' ';
-            ci[actual].Attributes = MapAttr(WINCONSOLE.SBI.wAttributes,
-                                            AttrOf(ch));
-            ++actual;
-            continue;
-        }
+	    /* Skip trailing cell of a double-width character.  */
+	    ci[actual].CharInfoChar = ' ';
+	    ci[actual].Attributes = MapAttr(WINCONSOLE.SBI.wAttributes,
+					    AttrOf(ch));
+	    ++actual;
+	    continue;
+	}
 	ci[actual].CharInfoChar = CharOf(ch);
 	ci[actual].Attributes = MapAttr(WINCONSOLE.SBI.wAttributes,
 					AttrOf(ch));
@@ -779,6 +779,8 @@ wcon_mode(TERMINAL_CONTROL_BLOCK * TCB, int progFlag, int defFlag)
 		    if (sp) {
 			if (sp->_keypad_on)
 			    _nc_keypad(sp, TRUE);
+			if (sp->_use_meta)
+			    meta_sp(sp, TRUE);
 		    }
 		    if (!WINCONSOLE.buffered) {
 			_nc_console_set_scrollback(FALSE, &WINCONSOLE.SBI);
@@ -798,6 +800,7 @@ wcon_mode(TERMINAL_CONTROL_BLOCK * TCB, int progFlag, int defFlag)
 		/* reset_shell_mode */
 		if (sp) {
 		    _nc_keypad(sp, FALSE);
+		    meta_sp(sp, FALSE);
 		    NCURSES_SP_NAME(_nc_flush)(sp);
 		}
 		code = wcon_sgmode(TCB, TRUE, &(_term->Ottyb));

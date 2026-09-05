@@ -52,7 +52,7 @@
 # endif
 #endif
 
-MODULE_ID("$Id: tinfo_driver.c,v 1.91 2026/05/30 22:57:16 tom Exp $")
+MODULE_ID("$Id: tinfo_driver.c,v 1.92 2026/09/05 20:28:39 tom Exp $")
 
 /*
  * SCO defines TIOCGSIZE and the corresponding struct.  Other systems (SunOS,
@@ -631,6 +631,8 @@ drv_mode(TERMINAL_CONTROL_BLOCK * TCB, int progFlag, int defFlag)
 		if (sp) {
 		    if (sp->_keypad_on)
 			_nc_keypad(sp, TRUE);
+		    if (sp->_use_meta)
+			meta_sp(sp, TRUE);
 		}
 #if defined(USE_WIN32CON_DRIVER)
 		if (!WINCONSOLE.buffered)
@@ -661,6 +663,7 @@ drv_mode(TERMINAL_CONTROL_BLOCK * TCB, int progFlag, int defFlag)
 	    /* reset_shell_mode */
 	    if (sp) {
 		_nc_keypad(sp, FALSE);
+		meta_sp(sp, FALSE);
 		NCURSES_SP_NAME(_nc_flush)(sp);
 	    }
 	    code = drv_sgmode(TCB, TRUE, &(_term->Ottyb));
